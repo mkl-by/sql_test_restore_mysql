@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  w: # наименование сервиса
+    build:
+      context: .   # откуда берем контекст (папка с проектом) находись тут и отсюда работай
+      dockerfile: Dockerfile # докерфайл с помощью которого запускаем, файл уже может называться подругому
+    container_name: test_proj
+    volumes:
+      - ./project:/src # подключаем папку с проектом из:в докер
+#    ports:
+#      - "8000:8000" # из: в докер
+#    command: sh -c 'python3 main.py' # запускаем программу
+    depends_on: #  прежде чем запуститься ждем запуска базы данных
+      - db  #  наименование базы данных в данном случае mysql
+#    command: sh -c 'python3 main.py' # запускаем программу
+    env_file:
+      - db_keys.txt
+    command: sh -c 'python3 main.py'
+
+  db: # cоздадим новый контейнер дб
+    image: mysql:latest # скачиваем последнюю версию с докерхаба
+    container_name: my_db # обзываем my_db
+    env_file:
+      - db_keys.txt # берем данные из файла db_keys, лежит в . где docker-compose.yaml и делаем пароль, юзера для постгресс
+    restart: always
+    volumes:
+      - . :/var/lib/mysql
+      - ./project/test_task_sql.sql:/docker-entrypoint-initdb.d/test_task_sql.sql
