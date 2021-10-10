@@ -14,12 +14,37 @@ try:
     ) as connection:
         #  если подключились
         print("MYSQL:", connection)
-        select_movies_query = "SELECT * FROM bid LIMIT 5"
+        select_event = "SELECT play_id, outcome FROM event_value LIMIT 5"
+        select_bid = """SELECT  client_number, outcome  
+                        FROM bid JOIN event_value
+                        WHERE bid.play_id = event_value.play_id 
+                        
+                        """
+        select = "SELECT play_id FROM event_entity LIMIT 5"
         with connection.cursor() as cursor:
-            cursor.execute(select_movies_query)
+            cursor.execute(select_bid)
             result = cursor.fetchall()
-            for row in result:
-                print(row)
+            a = dict()
+            b = set(result)  # выбираем
+            print(b)
+            a['win'] = []
+            a['lose'] = []
+            # делаем словарь с 2-мя ключами
+            for i in b:
+                a[i[1]].append([i[0], result.count(i)])
+            # выводим на экран
+            print('+---------------------------------------+')
+            print('|Пользователь |', 'Побед |', 'Поражений |')
+            print('+---------------------------------------+')
+            for i in range(len(a['win'])):
+                print('|', ' '*3, sorted(a['win'])[i][0], ' '*5,
+                      '|', ' ', sorted(a['win'])[i][1],
+                      ' |', ' '*2, sorted(a['lose'])[i][1], '    |'
+                      )
+            print('+---------------------------------------+')
+
+
+
 
 except Error as e:
     # если ошибка
