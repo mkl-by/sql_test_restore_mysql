@@ -26,4 +26,4 @@ services:
     restart: always
     volumes:
       - . :/var/lib/mysql
-      - ./project/test_task_sql.sql:/docker-entrypoint-initdb.d/test_task_sql.sql
+      - ./project/test_task_sql.sql:/docker-entrypoint-initdb.d/test_task_sql.sql # копируем дамп в базу

@@ -14,19 +14,15 @@ try:
     ) as connection:
         #  если подключились
         print("MYSQL:", connection)
-        select_event = "SELECT play_id, outcome FROM event_value LIMIT 5"
         select_bid = """SELECT  client_number, outcome  
                         FROM bid JOIN event_value
                         WHERE bid.play_id = event_value.play_id 
-                        
                         """
-        select = "SELECT play_id FROM event_entity LIMIT 5"
         with connection.cursor() as cursor:
             cursor.execute(select_bid)
             result = cursor.fetchall()
             a = dict()
             b = set(result)  # выбираем
-            print(b)
             a['win'] = []
             a['lose'] = []
             # делаем словарь с 2-мя ключами
