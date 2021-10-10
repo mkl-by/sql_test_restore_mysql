@@ -18,3 +18,9 @@
 
 СУБД: MySQL
 Дамп БД находится в sql/test_task_sql.sql
+
+# Backup
+docker exec CONTAINER /usr/bin/mysqldump -u root --password=root DATABASE > backup.sql
+
+# Restore
+cat backup.sql | docker exec -i CONTAINER /usr/bin/mysql -u root --password=root DATABASE
