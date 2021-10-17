@@ -14,32 +14,33 @@ try:
     ) as connection:
         #  если подключились
         print("MYSQL:", connection)
-        select_bid = """SELECT  client_number, outcome  
-                        FROM bid JOIN event_value
-                        WHERE bid.play_id = event_value.play_id 
-                        """
+        # select_bid = """SELECT  client_number, outcome
+        #                 FROM bid JOIN event_value
+        #                 WHERE bid.play_id = event_value.play_id """
+
+        select_bid = """SELECT client_number as client, 
+                                SUM(outcome = "win") as win, 
+                                SUM(outcome = "lose") AS lose 
+                                -- SUM(CASE WHEN outcome = "win" OR outcome = "lose" THEN 1 ELSE 0 END) AS Totalwinlose 
+                        FROM bid
+                        INNER JOIN event_value
+                        ON bid.play_id = event_value.play_id
+                        GROUP BY client_number; """
+        
         with connection.cursor() as cursor:
             cursor.execute(select_bid)
             result = cursor.fetchall()
-            a = dict()
-            b = set(result)  # выбираем
-            a['win'] = []
-            a['lose'] = []
-            # делаем словарь с 2-мя ключами
-            for i in b:
-                a[i[1]].append([i[0], result.count(i)])
-            # выводим на экран
-            print('+---------------------------------------+')
+            print('+----------------------------------+')
             print('|Пользователь |', 'Побед |', 'Поражений |')
-            print('+---------------------------------------+')
-            for i in range(len(a['win'])):
-                print('|', ' '*3, sorted(a['win'])[i][0], ' '*5,
-                      '|', ' ', sorted(a['win'])[i][1],
-                      ' |', ' '*2, sorted(a['lose'])[i][1], '    |'
+            print('+----------------------------------+')
+
+            for n, win, lose in result:
+                #  print(f'{n} {win} {lose}', end='\n')
+                print('|', ' '*3, n, ' '*5,
+                      '|', ' ', win,
+                      ' |', ' '*2, lose, '    |'
                       )
-            print('+---------------------------------------+')
-
-
+            print('+----------------------------------+')
 
 
 except Error as e:
