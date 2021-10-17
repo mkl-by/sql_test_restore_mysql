@@ -14,9 +14,6 @@ try:
     ) as connection:
         #  если подключились
         print("MYSQL:", connection)
-        # select_bid = """SELECT  client_number, outcome
-        #                 FROM bid JOIN event_value
-        #                 WHERE bid.play_id = event_value.play_id """
 
         select_bid = """SELECT client_number as client, 
                                 SUM(outcome = "win") as win, 
@@ -26,41 +23,51 @@ try:
                         INNER JOIN event_value
                         ON bid.play_id = event_value.play_id
                         GROUP BY client_number; """
-        
-        with connection.cursor() as cursor:
-            cursor.execute(select_bid)
-            result = cursor.fetchall()
-            print('+----------------------------------+')
-            print('|Пользователь |', 'Побед |', 'Поражений |')
-            print('+----------------------------------+')
 
-            for n, win, lose in result:
+        select_event_entity = """
+                        SELECT least(home_team, away_team) AS A, 
+                                greatest(home_team, away_team) AS B, 
+                                COUNT(*)
+                        FROM event_entity
+                        GROUP BY A, B
+                        HAVING COUNT(*) >= 1
+                        ORDER BY A, B 
+                            """
+
+        def connect_sql(sql: str) -> list:
+            with connection.cursor() as cursor:
+                cursor.execute(sql)
+                return cursor.fetchall()
+
+        result = connect_sql(select_bid)
+        print('+----------------------------------+')
+        print('|Пользователь |', 'Побед |', 'Поражений |')
+        print('+----------------------------------+')
+
+        for n, win, lose in result:
                 #  print(f'{n} {win} {lose}', end='\n')
-                print('|', ' '*3, n, ' '*5,
+           print('|', ' '*3, n, ' '*5,
                       '|', ' ', win,
                       ' |', ' '*2, lose, '    |'
                       )
-            print('+----------------------------------+')
+        print('+----------------------------------+')
 
+        result = connect_sql(select_event_entity)
+        ss = '-'*57
+        print('+'+ss+'+')
+        print('|game                                               |games|')
+        print('+'+ss+'+')
+
+        for game1, game2, res in result:
+
+            s = f"| {game1} {game2}"
+            len_s = len(s)
+            if len_s < 53:
+                len_str = 53 - len_s
+                print(f"| {game1} {game2}" + " "*len_str + (f"| {res}  |" if res < 10 else f"| {res} |"))
+        print('+'+ss+'+')
 
 except Error as e:
     # если ошибка
     print("ERROR:", e)
 
-
-
-
-
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-    print('ok')
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/

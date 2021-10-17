@@ -28,8 +28,8 @@ services:
       - . :/var/lib/mysql
       - ./project/test_task_sql.sql:/docker-entrypoint-initdb.d/test_task_sql.sql # копируем дамп в базу
 
-  adminer:
-    image: adminer:latest
-    container_name: adminersel
-    ports:
-      - "8080:8080"
+#  adminer:
+#    image: adminer:latest
+#    container_name: adminersel
+#    ports:
+#      - "8080:8080"
